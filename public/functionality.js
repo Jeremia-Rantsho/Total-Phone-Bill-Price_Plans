@@ -37,7 +37,7 @@ document.addEventListener('alpine:init', () => {
         },
         async getPricePlans() {
             try {
-                const response = await fetch('http://localhost:3050/api/price_plans');
+                const response = await fetch('/api/price_plans');
                 const data = await response.json();
                 this.pricePlans = data.price_plans;
             } catch (error) {
@@ -46,7 +46,7 @@ document.addEventListener('alpine:init', () => {
         },
         async createPricePlan() {
             try {
-                const response = await fetch('http://localhost:3050/api/price_plan/create', {
+                const response = await fetch('/api/price_plan/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -65,7 +65,7 @@ document.addEventListener('alpine:init', () => {
             }
         },
         async updatePricePlan() {
-            const response = await fetch('http://localhost:3050/api/price_plan/update', {
+            const response = await fetch('/api/price_plan/update', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -84,7 +84,7 @@ document.addEventListener('alpine:init', () => {
 
         async deletePricePlan(id) {
             try {
-                const response = await fetch('http://localhost:3050/api/price_plan/delete', {
+                const response = await fetch('/api/price_plan/delete', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
