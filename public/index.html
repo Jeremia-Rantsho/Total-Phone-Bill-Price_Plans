@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="//unpkg.com/alpinejs" defer></script>
+    <link rel="stylesheet" href="/public/style.css">
+    <title>Total Phonebill</title>
+</head>
+
+<body>
+    <div x-data="pricePlanManager" class="container #1de9b6 teal accent-3">
+        <div class="section">
+            <h1 class="center white-text">Total Phone Bill</h1>
+            <br>
+            <h4 class="center white-text">Price Plans</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Phone Plans</th>
+                        <th>Call Price</th>
+                        <th>SMS Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <template x-for="plan in pricePlans" :key="plan.id">
+                    <tbody>
+                        <tr class="white-text">
+                            <td x-text="plan.id"></td>
+                            <td x-text="plan.plan_name"></td>
+                            <td x-text="plan.call_price"></td>
+                            <td x-text="plan.sms_price"></td>
+                            <td x-text="plan.call_price + plan.sms_price"></td>
+                            <td><button class="btn #1de9b6 teal accent-3 font-bold"
+                                    @click="deletePricePlan(plan.id)">DELETE</button></td>
+                        </tr>
+                    </tbody>
+                </template>
+            </table>
+        </div>
+
+        <div class="section">
+            <h4 class="center-align white-text">Phone Bill</h4>
+            <div class="input-field white-text">
+                <input type="text" id="selectedPlan" x-model="selectedPlan" class="white-text center">
+                <label class="white-text" for="selectedPlan">Select a plan you want to add its actions</label>
+            </div>
+            <div class="input-field white-text">
+                <input type="text" id="actions" x-model="actions" class="white-text center">
+                <label class="white-text" for="actions">Enter Actions(comma-separated)</label>
+            </div>
+            <div class="row center">
+                <button class="btn #1de9b6 teal accent-3" @click="totalPhoneBill(actions)">Generate Total</button>
+                <p class="flow-text white-text">Total: <span x-text="total"></span></p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h4 class="center white-text">Add New Plan</h4>
+            <form class="center white-text" @submit.prevent="createPricePlan">
+                <div class="row">
+                    <label for="planName">Price Plan Name</label>
+                    <input class="white-text center" id="planName" type="text" x-model="newPlan.name">
+                </div>
+                <div class="row center">
+                    <label for="callCost">Call Cost</label>
+                    <input class="white-text center" step="0.01" type="number" id="callCost" x-model="newPlan.call_cost">
+                </div>
+                <div class="row center">
+                    <label for="smsCost">SMS Cost</label>
+                    <input class="white-text center" step="0.01" type="number" id="smsCost" x-model="newPlan.sms_cost">
+                </div>
+                <button type="submit" class="btn #1de9b6 teal accent-3">Create Plan</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h3 class="center-align white-text">Update Price Plan</h3>
+            <form class="center" @submit.prevent="updatePricePlan">
+                <div class="center">
+                    <label for="edit_name">Plan Name</label>
+                    <input class="white-text center"  type="text" id="edit_name" x-model="editPlan.plan_name">
+                </div>
+                <div class="center">
+                    <label for="edit_call_cost">Call Cost</label>
+                    <input class="white-text center" step="0.01" type="number" id="edit_call_cost" x-model="editPlan.call_price">
+                </div>
+                <div class="center">
+                    <label for="edit_sms_cost">SMS Cost</label>
+                    <input class="white-text center" step="0.01" type="number" id="edit_sms_cost" x-model="editPlan.sms_price">
+                </div>
+                <button type="submit" class="btn #1de9b6 teal accent-3">Update Plan</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/public/functionality.js"></script>
+    <script type="module" src="/public/totalPhoneBill.js"></script>
+</body>
+
+</html>

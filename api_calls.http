@@ -1,0 +1,40 @@
+
+//Create price plan
+POST http://localhost:3050/api/price_plan/create
+content-type: application/json
+{
+    "name" : "sms_kick_100",
+    "sms_price" : 0.25,
+    "call_price": 0.75
+}
+
+//Get all the price plans
+GET http://localhost:3050/api/price_plans
+
+//Get a specific price plan
+GET http://localhost:3050/api/price_plan/:plan_name
+
+//calculate the total phonebill
+POST http://localhost:3050/api/phonebill
+content-type: application/json
+{
+    "name" : "call",
+    "sms_price" : 0.25,
+    "call_price": 0.75
+}
+
+//Update the price plan 
+POST http://localhost:3050/api/price_plan/update
+content-type: application/json
+{
+    "name" : "sms_kick_100",
+    "sms_price" : 0.29,
+    "call_price": 0.66
+}
+
+//Delete the price plan
+POST http://localhost:3050/api/price_plan/delete
+content-type: application/json
+{
+    "id": 17
+}
