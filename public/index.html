@@ -7,15 +7,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/public/style.css">
     <title>Total Phonebill</title>
 </head>
 
 <body>
-    <div x-data="pricePlanManager" class="container #1de9b6 teal accent-3">
+    <div x-data="pricePlanManager" class="container #3dbff3">
         <div class="section">
             <h1 class="center white-text">Total Phone Bill</h1>
             <br>
+
             <h4 class="center white-text">Price Plans</h4>
             <table>
                 <thead>
@@ -32,15 +33,82 @@
                         <tr class="white-text">
                             <td x-text="plan.id"></td>
                             <td x-text="plan.plan_name"></td>
-                            <td x-text="plan.call_price"></td>
-                            <td x-text="plan.sms_price"></td>
-                            <td x-text="plan.call_price + plan.sms_price"></td>
+                            <td>R<span x-text="plan.call_price"></span></td>
+                            <td>R<span x-text="plan.sms_price"></span></td>
+                            <td>R<span x-text="plan.call_price + plan.sms_price"></span></td>
                             <td><button class="btn #1de9b6 teal accent-3 font-bold"
-                                    @click="deletePricePlan(plan.id)">DELETE</button></td>
+                                    @click="confirmDeletion(plan.id)">DELETE</button></td>
+                            <td>
+                                <button class="btn #1de9b6 teal accent-3 font-bold"
+                                    @click="editMode = plan.id; editPlan = {...plan}">
+                                    UPDATE
+                                </button>
+                            </td>
+                            <td>
+                                <template x-if="editMode === plan.id">
+                                    <td>
+                                        <input class="white-text center" type="text" x-model="editPlan.plan_name">
+                                    </td>
+                                    <td>
+                                        <input class="white-text center" type="number" x-model="editPlan.call_price">
+                                    </td>
+                                    <td>
+                                        <input class="white-text center" type="number" x-model="editPlan.sms_price">
+                                    </td>
+                                    <td>R<span x-text="editPlan.call_price + editPlan.sms_price"></span></td>
+                                    <td>
+                                        <button class="btn #1de9b6 teal accent-3 font-bold"
+                                            @click="confirmUpdate(editPlan)">
+                                            SAVE
+                                        </button>
+                                    </td>
+                                    <td>
+                                        <button class="btn #1de9b6 teal accent-3 font-bold" @click="editMode = null">
+                                            CANCEL
+                                        </button>
+                                    </td>
+                                </template>
+                            </td>
+                            
                         </tr>
                     </tbody>
                 </template>
             </table>
+        </div>
+
+        <div class="section center">
+            <h5 class="white-text">Obtain maximum total of price plans</h5>
+            <button class="btn #1de9b6 teal accent-3 font-bold"
+                                    @click="getMaximumPlan()">Maximum Plan Price</button>
+            <p class="white-text" x-show="maximumPlan > 0">The maximum plan in place is <span x-text="maximumPlan"></span></p>
+        </div>
+
+        <div class="section center">
+            <h5 class="white-text">Obtain minimum total of price plans</h5>
+            <button class="btn #1de9b6 teal accent-3 font-bold"
+                                    @click="getMinimumPlan()">Minimum Plan Price</button>
+            <p class="white-text" x-show="minimumPlan !== 0">The minimum plan in place is <span x-text="minimumPlan"></span></p>
+        </div>
+
+        <div class="section">
+            <h3 class="center-align white-text">Update Price Plan</h3>
+            <form class="center" @submit.prevent="updatePricePlan">
+                <div class="center">
+                    <label for="edit_name">Plan Name</label>
+                    <input class="white-text center" type="text" id="edit_name" x-model="editPlan.plan_name">
+                </div>
+                <div class="center">
+                    <label for="edit_call_cost">Call Cost</label>
+                    <input class="white-text center" step="0.01" type="number" id="edit_call_cost"
+                        x-model="editPlan.call_price">
+                </div>
+                <div class="center">
+                    <label for="edit_sms_cost">SMS Cost</label>
+                    <input class="white-text center" step="0.01" type="number" id="edit_sms_cost"
+                        x-model="editPlan.sms_price">
+                </div>
+                <button type="submit" class="btn #1de9b6 teal accent-3">Update Plan</button>
+            </form>
         </div>
 
         <div class="section">
@@ -55,7 +123,8 @@
             </div>
             <div class="row center">
                 <button class="btn #1de9b6 teal accent-3" @click="totalPhoneBill(actions)">Generate Total</button>
-                <p class="flow-text white-text">Total: <span x-text="total"></span></p>
+                <p class="white-text" x-show="total">You have successfuly calculated the plan's actions.</p>
+                <p class="flow-text white-text" x-show="total">Total:R<span x-text="total"></span></p>
             </div>
         </div>
 
@@ -68,7 +137,8 @@
                 </div>
                 <div class="row center">
                     <label for="callCost">Call Cost</label>
-                    <input class="white-text center" step="0.01" type="number" id="callCost" x-model="newPlan.call_cost">
+                    <input class="white-text center" step="0.01" type="number" id="callCost"
+                        x-model="newPlan.call_cost">
                 </div>
                 <div class="row center">
                     <label for="smsCost">SMS Cost</label>
@@ -78,32 +148,10 @@
             </form>
         </div>
 
-        <div class="section">
-            <h3 class="center-align white-text">Update Price Plan</h3>
-            <form class="center" @submit.prevent="updatePricePlan">
-                <div class="center">
-                    <label for="edit_name">Plan Name</label>
-                    <input class="white-text center"  type="text" id="edit_name" x-model="editPlan.plan_name">
-                </div>
-                <div class="center">
-                    <label for="edit_call_cost">Call Cost</label>
-                    <input class="white-text center" step="0.01" type="number" id="edit_call_cost" x-model="editPlan.call_price">
-                </div>
-                <div class="center">
-                    <label for="edit_sms_cost">SMS Cost</label>
-                    <input class="white-text center" step="0.01" type="number" id="edit_sms_cost" x-model="editPlan.sms_price">
-                </div>
-                <button type="submit" class="btn #1de9b6 teal accent-3">Update Plan</button>
-            </form>
-        </div>
-
-        <!-- <div class="section">
-            <h5>Maximum: <span x-text=""></span></h5>
-        </div> -->
     </div>
 
-    <script src="./functionality.js"></script>
-    <script type="/module" src="./totalPhoneBill.js"></script>
+    <script src="pricePlanManager.js"></script>
+    <script type="module" src="pricePlanManagerAlpine.js"></script>
 </body>
 
 </html>

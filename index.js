@@ -22,7 +22,7 @@ await db.migrate();
 
 app.get('/api/price_plans', async (req, res) => {
     try {
-        const pricePlans = await db.all('SELECT * FROM price_plan');
+        const pricePlans = await db.all('SELECT *, (call_price + sms_price) AS total_value FROM price_plan ORDER BY total_value DESC');
         res.json({ price_plans: pricePlans });
     } catch (err) {
         res.status(500).json({ error: err.message });

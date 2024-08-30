@@ -3,6 +3,9 @@ document.addEventListener('alpine:init', () => {
         pricePlans: [],
         total: 0,
         selectedPlan: '',
+        editMode: null,
+        maximumPlan: 0,
+        minimumPlan: 0,
         newPlan: {
             plan_name: '',
             call_price: 0,
@@ -14,6 +17,32 @@ document.addEventListener('alpine:init', () => {
             sms_price: 0
         },
         actions: '',
+        async getMaximumPlan() {
+            let max = 0;
+
+            await this.getPricePlans();
+
+            this.pricePlans.forEach(plan => {
+                if (plan.total_value > max) {
+                    max = plan.total_value;
+                }
+            });
+
+            this.maximumPlan = max;
+        },
+        async getMinimumPlan() {
+            let min = Infinity;
+
+            await this.getPricePlans();
+
+            this.pricePlans.forEach(plan => {
+                if (plan.total_value < min) {
+                    min = plan.total_value;
+                }
+            });
+
+            this.minimumPlan = min;
+        },
         async totalPhoneBill(actions) {
             let total = 0;
             await this.getPricePlans();
@@ -26,9 +55,9 @@ document.addEventListener('alpine:init', () => {
             }
             actionsArray.forEach(action => {
                 if (action.toLowerCase() === 'call') {
-                    total += plan.call_price; 
+                    total += plan.call_price;
                 } else if (action.toLowerCase() === 'sms') {
-                    total += plan.sms_price; 
+                    total += plan.sms_price;
                 }
             });
             this.total = total;
@@ -37,7 +66,7 @@ document.addEventListener('alpine:init', () => {
         },
         async getPricePlans() {
             try {
-                const response = await fetch('/api/price_plans');
+                const response = await fetch('http://localhost:3050/api/price_plans');
                 const data = await response.json();
                 this.pricePlans = data.price_plans;
             } catch (error) {
@@ -46,7 +75,7 @@ document.addEventListener('alpine:init', () => {
         },
         async createPricePlan() {
             try {
-                const response = await fetch('/api/price_plan/create', {
+                const response = await fetch('http://localhost:3050/api/price_plan/create', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -65,14 +94,13 @@ document.addEventListener('alpine:init', () => {
             }
         },
         async updatePricePlan() {
-            const response = await fetch('/api/price_plan/update', {
+            const response = await fetch('http://localhost:3050/api/price_plan/update', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(this.editPlan)
             });
-            console.log('Rows updated:', this.changes);
             if (response.ok) {
                 this.getPricePlans();
                 this.editPlan = { plan_name: '', call_price: 0, sms_price: 0 };
@@ -84,7 +112,7 @@ document.addEventListener('alpine:init', () => {
 
         async deletePricePlan(id) {
             try {
-                const response = await fetch('/api/price_plan/delete', {
+                const response = await fetch('http://localhost:3050/api/price_plan/delete', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -94,11 +122,30 @@ document.addEventListener('alpine:init', () => {
 
                 if (response.ok) {
                     await this.getPricePlans();
+                    this.pricePlans = this.pricePlans.filter(plan => plan.id !== id);
                 } else {
                     console.error("The operation of deleting the price plan failed. Try again...", await response.text());
                 }
             } catch (error) {
                 console.error("Error occured while deleting the price plan.", error);
+            }
+        },
+        confirmDeletion(id) {
+            if (confirm('Are you sure you want to delete this price plan?')) {
+                this.deletePricePlan(id);
+            }
+        },
+        savePricePlan(plan) {
+            const index = this.pricePlans.findIndex(p => p.id === plan.id);
+            if (index !== -1) {
+                this.pricePlans[index] = { ...plan };
+            }
+            this.editMode = null;
+        },
+
+        confirmUpdate(plan) {
+            if (confirm('Are you sure you want to update this price plan?')) {
+                this.savePricePlan(plan);
             }
         },
         init() {
