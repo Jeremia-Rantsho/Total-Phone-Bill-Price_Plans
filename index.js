@@ -1,7 +1,7 @@
 import express from 'express';
 import * as sqlite from 'sqlite';
 import sqlite3 from 'sqlite3';
-import cors from 'cors';
+// import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3050;
@@ -9,9 +9,9 @@ const PORT = process.env.PORT || 3050;
 app.use(express.static('public'));
 app.use(express.json());
 
-app.use(cors({
-    origin: 'http://127.0.0.1:5500'
-}));
+// app.use(cors({
+//     origin: 'http://127.0.0.1:5500'
+// }));
 
 const db = await sqlite.open({
     filename: './data_plan.db',
