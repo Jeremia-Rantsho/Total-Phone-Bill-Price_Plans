@@ -9,6 +9,10 @@ const PORT = process.env.PORT || 3050;
 app.use(express.static('public'));
 app.use(express.json());
 
+app.use(cors({
+    origin: 'http://127.0.0.1:5500'
+}));
+
 const db = await sqlite.open({
     filename: './data_plan.db',
     driver: sqlite3.Database
